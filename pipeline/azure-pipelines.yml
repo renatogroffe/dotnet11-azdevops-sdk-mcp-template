@@ -1,0 +1,112 @@
+trigger:
+- main
+
+variables:
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: TestsDotNet11
+  displayName: Testes .NET 11 stage
+  jobs:
+  - job: TestsDotNet11
+    displayName: Testes .NET 11
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '11.0.100-preview.4.26230.115'
+        includePreviewVersions: true
+      displayName: 'Instalar o .NET 11 SDK Preview 4'
+    - script: |
+        dotnet --version
+      displayName: 'Exibir versao default do .NET'
+    - script: |
+        dotnet new mcpserver -n SampleMcpServer
+      displayName: 'Primeira tentativa de criacao de um projeto usando o template de MCP Servers'
+    - script: |
+        cd SampleMcpServer
+        echo ''
+        pwd
+        echo ''
+        ls -l
+        echo ''
+        echo '** SampleMcpServer.csproj'
+        echo ''
+        cat SampleMcpServer.csproj
+        echo ''
+        echo '** Program.cs'
+        echo ''
+        cat Program.cs
+        echo ''
+        echo '** README.md'
+        echo ''
+        cat README.md
+        echo ''
+        echo '*****'
+        cd Tools
+        echo ''
+        pwd
+        echo ''
+        ls -l
+        echo ''
+        echo '** RandomNumberTools.cs'
+        echo ''
+        cat RandomNumberTools.cs
+      displayName: 'Exibir arquivos gerados'
+      condition: always()
+- stage: TestsDotNet10
+  displayName: Testes .NET 10 stage
+  dependsOn: TestsDotNet11
+  jobs:
+  - job: TestsDotNet10
+    displayName: Testes .NET 10
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: |
+        dotnet --version
+      displayName: 'Exibir versao default do .NET'
+    - script: |
+        dotnet new mcpserver -n SampleMcpServer
+      displayName: 'Primeira tentativa de criacao de um projeto usando o template de MCP Servers'
+    - script: |
+        dotnet new install Microsoft.McpServer.ProjectTemplates
+      displayName: 'Instalar o template de MCP Servers'
+      condition: always()
+    - script: |
+        dotnet new mcpserver -n SampleMcpServer
+      displayName: 'Segunda tentativa de criacao de um projeto usando o template de MCP Servers'
+      condition: always()
+    - script: |
+        cd SampleMcpServer
+        echo ''
+        pwd
+        echo ''
+        ls -l
+        echo ''
+        echo '** SampleMcpServer.csproj'
+        echo ''
+        cat SampleMcpServer.csproj
+        echo ''
+        echo '** Program.cs'
+        echo ''
+        cat Program.cs
+        echo ''
+        echo '** README.md'
+        echo ''
+        cat README.md
+        echo ''
+        echo '*****'
+        cd Tools
+        echo ''
+        pwd
+        echo ''
+        ls -l
+        echo ''
+        echo '** RandomNumberTools.cs'
+        echo ''
+        cat RandomNumberTools.cs
+      displayName: 'Exibir arquivos gerados'
+      condition: always()
